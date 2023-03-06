@@ -8,8 +8,9 @@ import {
 } from 'react'
 import { ActionMap } from '../types/ActionMap'
 
-export type Note = NoteData & {
+type Tag = {
   id: string
+  label: string
 }
 
 export type NoteData = {
@@ -18,9 +19,8 @@ export type NoteData = {
   tags: Tag[]
 }
 
-type Tag = {
+export type Note = NoteData & {
   id: string
-  label: string
 }
 
 type NoteState = {
@@ -56,7 +56,10 @@ interface NoteContextProps {
   dispatch: Dispatch<NoteAction>
 }
 
-const NoteContext = createContext<NoteContextProps>({} as NoteContextProps)
+const NoteContext = createContext<NoteContextProps>({
+  state: initialState,
+  dispatch: () => null,
+})
 
 const NoteProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(noteReducer, initialState)
