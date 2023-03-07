@@ -5,8 +5,10 @@ import {
   useContext,
   useMemo,
   useReducer,
+  useEffect,
 } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { LOCAL_STORAGE_NOTES_KEY, LOCAL_STORAGE_TAGS_KEY } from '../consts/note'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { ActionMap } from '../types/ActionMap'
 
@@ -100,6 +102,27 @@ const NoteContext = createContext<NoteContextProps>({
 const NoteProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(noteReducer, initialState)
   const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch])
+
+  const [notes, setNotes] = useLocalStorage<RawNote[]>(
+    LOCAL_STORAGE_NOTES_KEY,
+    [],
+  )
+  const [tags, setTags] = useLocalStorage<Tag[]>(LOCAL_STORAGE_TAGS_KEY, [])
+
+  // TODO: find a better way to connect state with localStorage
+  useEffect(() => {
+    if (state.tags.length) {
+      setTags(state.tags)
+    }
+  }, [state.tags])
+
+  // TODO: find a better way to connect state with localStorage
+  useEffect(() => {
+    if (state.notes.length) {
+      setNotes(state.notes)
+    }
+  }, [state.notes])
+
   return (
     <NoteContext.Provider value={contextValue}>{children}</NoteContext.Provider>
   )

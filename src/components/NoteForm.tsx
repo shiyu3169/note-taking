@@ -3,12 +3,16 @@ import { Form, Stack, Row, Col, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import CreatableReactSelect from 'react-select/creatable'
 import { NoteActionType, Tag, useNoteContext } from '../providers/NoteProvider'
+import { v4 as uuidv4 } from 'uuid'
 
 function NoteForm() {
   const titleRef = useRef<HTMLInputElement>(null)
   const markdownRef = useRef<HTMLTextAreaElement>(null)
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
-  const { dispatch } = useNoteContext()
+  const {
+    dispatch,
+    state: { tags },
+  } = useNoteContext()
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -24,6 +28,19 @@ function NoteForm() {
     })
   }
 
+  const createTag = (label: string) => {
+    const tag = {
+      label,
+      id: uuidv4(),
+    }
+    setSelectedTags((tags) => [...tags, tag])
+    dispatch({
+      type: NoteActionType.CREATE_TAG,
+      payload: {
+        tag,
+      },
+    })
+  }
   return (
     <Form onSubmit={handleSubmit}>
       <Stack gap={4}>
@@ -38,7 +55,13 @@ function NoteForm() {
             <Form.Group controlId='title'>
               <Form.Label>Tags</Form.Label>
               <CreatableReactSelect
-                // onCreateOption={label => }
+                options={tags.map((tag) => ({
+                  label: tag.label,
+                  value: tag.id,
+                }))}
+                onCreateOption={(label) => {
+                  createTag(label)
+                }}
                 value={selectedTags.map((tag) => ({
                   label: tag.label,
                   value: tag.id,

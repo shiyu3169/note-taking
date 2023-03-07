@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const useLocalStorage = <T>(
   key: string,
@@ -17,5 +17,5 @@ export const useLocalStorage = <T>(
     localStorage.setItem(key, JSON.stringify(value))
   }, [key, value])
 
-  return value
+  return [value, setValue] as [T, React.Dispatch<React.SetStateAction<T>>]
 }
