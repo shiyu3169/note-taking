@@ -37,16 +37,20 @@ export type RawNote = RawNoteData & {
 
 type NoteState = {
   notes: RawNote[]
-  tags: string[]
+  tags: Tag[]
 }
 
 export enum NoteActionType {
   CREATE_NOTE = 'CREATE_NOTE',
+  CREATE_TAG = 'CREATE_TAG',
 }
 
 export type NoteActionPayload = {
   [NoteActionType.CREATE_NOTE]: {
     note: NoteData
+  }
+  [NoteActionType.CREATE_TAG]: {
+    tag: Tag
   }
 }
 
@@ -61,16 +65,22 @@ const initialState: NoteState = {
 const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
   switch (action.type) {
     case NoteActionType.CREATE_NOTE:
-      const newNote = action.payload.note
+      const { note } = action.payload
       const newRowNote = {
-        ...newNote,
-        tagIds: newNote.tags.map((tag) => tag.id),
+        ...note,
+        tagIds: note.tags.map((tag) => tag.id),
         tags: undefined,
         id: uuidv4(),
       }
       return {
         ...state,
         notes: [...state.notes, newRowNote],
+      }
+    case NoteActionType.CREATE_TAG:
+      const { tag } = action.payload
+      return {
+        ...state,
+        tags: [...state.tags, tag],
       }
     default:
       return state

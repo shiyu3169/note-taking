@@ -38,7 +38,7 @@ function NoteForm() {
             <Form.Group controlId='title'>
               <Form.Label>Tags</Form.Label>
               <CreatableReactSelect
-                onCreateOption={label => }
+                // onCreateOption={label => }
                 value={selectedTags.map((tag) => ({
                   label: tag.label,
                   value: tag.id,
