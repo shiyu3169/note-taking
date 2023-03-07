@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import ReactSelect from 'react-select'
 import { Tag, useNoteContext } from '../providers/NoteProvider'
 import { useState, useRef, useMemo } from 'react'
-import NoteCard from './NoteCard'
+import NoteCard from './NoteCard/NoteCard'
 
 const NoteList = () => {
   const {
@@ -76,7 +76,7 @@ const NoteList = () => {
       <Row xs={1} sm={2} lg={3} xl={4} className='g-3'>
         {filteredNotes.map((note) => (
           <Col key={note.id}>
-            <NoteCard />
+            <NoteCard id={note.id} title={note.title} tagIds={note.tagIds} />
           </Col>
         ))}
       </Row>
