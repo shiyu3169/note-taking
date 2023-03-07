@@ -1,6 +1,6 @@
 import { FormEvent, useRef, useState } from 'react'
 import { Form, Stack, Row, Col, Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import CreatableReactSelect from 'react-select/creatable'
 import { NoteActionType, Tag, useNoteContext } from '../providers/NoteProvider'
 import { v4 as uuidv4 } from 'uuid'
@@ -14,6 +14,8 @@ function NoteForm() {
     state: { tags },
   } = useNoteContext()
 
+  const navigate = useNavigate()
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     dispatch({
@@ -26,6 +28,7 @@ function NoteForm() {
         },
       },
     })
+    navigate('..')
   }
 
   const createTag = (label: string) => {

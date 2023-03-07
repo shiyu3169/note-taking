@@ -45,6 +45,7 @@ type NoteState = {
 export enum NoteActionType {
   CREATE_NOTE = 'CREATE_NOTE',
   CREATE_TAG = 'CREATE_TAG',
+  SET_TAGS = 'SET_TAGS',
 }
 
 export type NoteActionPayload = {
@@ -53,6 +54,9 @@ export type NoteActionPayload = {
   }
   [NoteActionType.CREATE_TAG]: {
     tag: Tag
+  }
+  [NoteActionType.SET_TAGS]: {
+    tags: Tag[]
   }
 }
 
@@ -84,6 +88,12 @@ const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
         ...state,
         tags: [...state.tags, tag],
       }
+    case NoteActionType.SET_TAGS:
+      const { tags } = action.payload
+      return {
+        ...state,
+        tags,
+      }
     default:
       return state
   }
@@ -103,16 +113,18 @@ const NoteProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(noteReducer, initialState)
   const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch])
 
-  const [notes, setNotes] = useLocalStorage<RawNote[]>(
-    LOCAL_STORAGE_NOTES_KEY,
-    [],
-  )
+  const [, setNotes] = useLocalStorage<RawNote[]>(LOCAL_STORAGE_NOTES_KEY, [])
   const [tags, setTags] = useLocalStorage<Tag[]>(LOCAL_STORAGE_TAGS_KEY, [])
 
   // TODO: find a better way to connect state with localStorage
   useEffect(() => {
     if (state.tags.length) {
       setTags(state.tags)
+    } else {
+      dispatch({
+        type: NoteActionType.SET_TAGS,
+        payload: { tags },
+      })
     }
   }, [state.tags])
 
