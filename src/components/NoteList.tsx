@@ -10,10 +10,7 @@ const NoteList = () => {
     state: { tags, notes },
   } = useNoteContext()
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
-
-  const titleRef = useRef<HTMLInputElement>(null)
-
-  const title = titleRef.current?.value || ''
+  const [title, setTitle] = useState('')
 
   const filteredNotes = useMemo(() => {
     return notes.filter(
@@ -44,7 +41,10 @@ const NoteList = () => {
           <Col>
             <Form.Group controlId='title'>
               <Form.Label>Title</Form.Label>
-              <Form.Control ref={titleRef} type='text' />
+              <Form.Control
+                onChange={(e) => setTitle(e.target.value)}
+                type='text'
+              />
             </Form.Group>
           </Col>
           <Col>
