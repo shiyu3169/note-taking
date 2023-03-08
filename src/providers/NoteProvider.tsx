@@ -45,6 +45,8 @@ export enum NoteActionType {
   SET_NOTES_WITH_TAGS = 'SET_NOTES_WITH_TAGS',
   UPDATE_NOTE = 'UPDATE_NOTE',
   DELETE_NOTE = 'DELETE_NOTE',
+  UPDATE_TAG = 'UPDATE_TAG',
+  DELETE_TAG = 'DELETE_TAG',
 }
 
 export type NoteActionPayload = {
@@ -65,6 +67,13 @@ export type NoteActionPayload = {
     note: RawNoteData
   }
   [NoteActionType.DELETE_NOTE]: {
+    id: string
+  }
+  [NoteActionType.UPDATE_TAG]: {
+    id: string
+    label: string
+  }
+  [NoteActionType.DELETE_TAG]: {
     id: string
   }
 }
@@ -121,11 +130,28 @@ const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
     }
     case NoteActionType.DELETE_NOTE:
       const { id } = action.payload
-      console.log(id)
       return {
         ...state,
         notes: state.notes.filter((note) => note.id !== id),
       }
+    case NoteActionType.UPDATE_TAG: {
+      const { id, label } = action.payload
+      return {
+        ...state,
+        tags: {
+          ...state.tags,
+          [id]: label,
+        },
+      }
+    }
+    case NoteActionType.DELETE_TAG: {
+      const { id } = action.payload
+      const { [id]: remove, ...rest } = state.tags
+      return {
+        ...state,
+        tags: rest,
+      }
+    }
     default:
       return state
   }

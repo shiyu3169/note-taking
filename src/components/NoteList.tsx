@@ -4,6 +4,7 @@ import ReactSelect from 'react-select'
 import { Tag, useNoteContext } from '../providers/NoteProvider'
 import { useState, useRef, useMemo } from 'react'
 import NoteCard from './NoteCard/NoteCard'
+import EditTagsModal from './EditTagsModal'
 
 const NoteList = () => {
   const {
@@ -11,6 +12,7 @@ const NoteList = () => {
   } = useNoteContext()
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
   const [title, setTitle] = useState('')
+  const [editTagsModalIsOpen, setEditTagsModalIsOpen] = useState(false)
 
   const filteredNotes = useMemo(() => {
     return notes.filter(
@@ -32,7 +34,12 @@ const NoteList = () => {
             <Link to='/new'>
               <Button variant='primary'>Create</Button>
             </Link>
-            <Button variant='outline-secondary'>Edit Tags</Button>
+            <Button
+              variant='outline-secondary'
+              onClick={() => setEditTagsModalIsOpen(true)}
+            >
+              Edit Tags
+            </Button>
           </Stack>
         </Col>
       </Row>
@@ -80,6 +87,10 @@ const NoteList = () => {
           </Col>
         ))}
       </Row>
+      <EditTagsModal
+        show={editTagsModalIsOpen}
+        handleClose={() => setEditTagsModalIsOpen(false)}
+      />
     </>
   )
 }
