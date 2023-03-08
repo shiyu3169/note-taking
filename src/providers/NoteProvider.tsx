@@ -43,6 +43,7 @@ export enum NoteActionType {
   SET_TAGS = 'SET_TAGS',
   SET_NOTES = 'SET_NOTES',
   SET_NOTES_WITH_TAGS = 'SET_NOTES_WITH_TAGS',
+  UPDATE_NOTE = 'UPDATE_NOTE',
 }
 
 export type NoteActionPayload = {
@@ -57,6 +58,10 @@ export type NoteActionPayload = {
   }
   [NoteActionType.SET_NOTES]: {
     notes: RawNote[]
+  }
+  [NoteActionType.UPDATE_NOTE]: {
+    id: string
+    note: RawNoteData
   }
 }
 
@@ -98,6 +103,18 @@ const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
         ...state,
         notes,
       }
+    case NoteActionType.UPDATE_NOTE: {
+      const { id, note } = action.payload
+      return {
+        ...state,
+        notes: state.notes.map((oldNote) => {
+          if (oldNote.id === id) {
+            return { ...note, id }
+          }
+          return oldNote
+        }),
+      }
+    }
     default:
       return state
   }

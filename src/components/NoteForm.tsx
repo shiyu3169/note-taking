@@ -2,33 +2,46 @@ import { FormEvent, useRef, useState } from 'react'
 import { Form, Stack, Row, Col, Button } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
 import CreatableReactSelect from 'react-select/creatable'
-import { NoteActionType, Tag, useNoteContext } from '../providers/NoteProvider'
+import {
+  NoteActionType,
+  RawNoteData,
+  Tag,
+  useNoteContext,
+} from '../providers/NoteProvider'
 import { v4 as uuidv4 } from 'uuid'
 
-function NoteForm() {
-  const titleRef = useRef<HTMLInputElement>(null)
-  const markdownRef = useRef<HTMLTextAreaElement>(null)
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+type NoteFormProps = {
+  handleSubmit: (note: RawNoteData) => void
+} & Partial<RawNoteData>
+
+function NoteForm({
+  handleSubmit,
+  title = '',
+  markdown = '',
+  tagIds = [],
+}: NoteFormProps) {
   const {
     dispatch,
     state: { tags },
   } = useNoteContext()
 
-  const navigate = useNavigate()
+  const titleRef = useRef<HTMLInputElement>(null)
+  const markdownRef = useRef<HTMLTextAreaElement>(null)
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(
+    tagIds.map((id) => ({
+      label: tags[id],
+      id,
+    })),
+  )
 
-  const handleSubmit = (e: FormEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    dispatch({
-      type: NoteActionType.CREATE_NOTE,
-      payload: {
-        note: {
-          title: titleRef.current!.value,
-          markdown: markdownRef.current!.value,
-          tagIds: selectedTags.map((tag) => tag.id),
-        },
-      },
-    })
-    navigate('..')
+    const note = {
+      title: titleRef.current!.value,
+      markdown: markdownRef.current!.value,
+      tagIds: selectedTags.map((tag) => tag.id),
+    }
+    handleSubmit(note)
   }
 
   const createTag = (label: string) => {
@@ -45,13 +58,13 @@ function NoteForm() {
     })
   }
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form onSubmit={onSubmit}>
       <Stack gap={4}>
         <Row>
           <Col>
             <Form.Group controlId='title'>
               <Form.Label>Title</Form.Label>
-              <Form.Control required ref={titleRef} />
+              <Form.Control required ref={titleRef} defaultValue={title} />
             </Form.Group>
           </Col>
           <Col>
@@ -84,7 +97,13 @@ function NoteForm() {
         </Row>
         <Form.Group controlId='markdown'>
           <Form.Label>Body</Form.Label>
-          <Form.Control required as='textarea' rows={15} ref={markdownRef} />
+          <Form.Control
+            defaultValue={markdown}
+            required
+            as='textarea'
+            rows={15}
+            ref={markdownRef}
+          />
         </Form.Group>
         <Stack direction='horizontal' gap={2} className='justify-content-end'>
           <Button type='submit'>Save</Button>
