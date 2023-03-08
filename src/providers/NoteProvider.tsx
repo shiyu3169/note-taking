@@ -44,6 +44,7 @@ export enum NoteActionType {
   SET_NOTES = 'SET_NOTES',
   SET_NOTES_WITH_TAGS = 'SET_NOTES_WITH_TAGS',
   UPDATE_NOTE = 'UPDATE_NOTE',
+  DELETE_NOTE = 'DELETE_NOTE',
 }
 
 export type NoteActionPayload = {
@@ -62,6 +63,9 @@ export type NoteActionPayload = {
   [NoteActionType.UPDATE_NOTE]: {
     id: string
     note: RawNoteData
+  }
+  [NoteActionType.DELETE_NOTE]: {
+    id: string
   }
 }
 
@@ -115,6 +119,13 @@ const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
         }),
       }
     }
+    case NoteActionType.DELETE_NOTE:
+      const { id } = action.payload
+      console.log(id)
+      return {
+        ...state,
+        notes: state.notes.filter((note) => note.id !== id),
+      }
     default:
       return state
   }
@@ -140,28 +151,26 @@ const NoteProvider = ({ children }: { children: ReactNode }) => {
   )
   const [tags, setTags] = useLocalStorage<TagMap>(LOCAL_STORAGE_TAGS_KEY, {})
 
-  // TODO: find a better way to connect state with localStorage
+  // init notes and tags on initial load
   useEffect(() => {
-    if (Object.keys(state.tags).length) {
-      setTags(state.tags)
-    } else {
-      dispatch({
-        type: NoteActionType.SET_TAGS,
-        payload: { tags },
-      })
-    }
+    dispatch({
+      type: NoteActionType.SET_TAGS,
+      payload: { tags },
+    })
+    dispatch({
+      type: NoteActionType.SET_NOTES,
+      payload: { notes },
+    })
+  }, [])
+
+  // Update tags in localStorage
+  useEffect(() => {
+    setTags(state.tags)
   }, [state.tags])
 
-  // TODO: find a better way to connect state with localStorage
+  // Update notes in localStorage
   useEffect(() => {
-    if (state.notes.length) {
-      setNotes(state.notes)
-    } else {
-      dispatch({
-        type: NoteActionType.SET_NOTES,
-        payload: { notes },
-      })
-    }
+    setNotes(state.notes)
   }, [state.notes])
 
   return (
