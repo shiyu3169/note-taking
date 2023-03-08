@@ -32,11 +32,11 @@ const NoteCard = ({ id, title, tagIds }: NoteCardProps) => {
               className='justify-content-center flex-wrap'
             >
               {tagIds.map((id) => {
-                const tag = tags.find((tag) => tag.id === id)
+                const tag = tags[id]
                 return (
                   tag && (
-                    <Badge className='text-truncate' key={tag.id}>
-                      {tag.label}
+                    <Badge className='text-truncate' key={id}>
+                      {tag}
                     </Badge>
                   )
                 )

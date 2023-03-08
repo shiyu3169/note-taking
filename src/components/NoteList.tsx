@@ -51,9 +51,9 @@ const NoteList = () => {
             <Form.Group controlId='title'>
               <Form.Label>Tags</Form.Label>
               <ReactSelect
-                options={tags.map((tag) => ({
-                  label: tag.label,
-                  value: tag.id,
+                options={Object.entries(tags).map(([id, value]) => ({
+                  label: value,
+                  value: id,
                 }))}
                 value={selectedTags.map((tag) => ({
                   label: tag.label,

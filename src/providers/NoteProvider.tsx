@@ -17,14 +17,9 @@ export type Tag = {
   label: string
 }
 
-export type NoteData = {
-  title: string
-  markdown: string
-  tags: Tag[]
-}
-
-export type Note = NoteData & {
-  id: string
+// Using Object instead map to make it localStorage friendly
+export type TagMap = {
+  [id: string]: string
 }
 
 export type RawNoteData = {
@@ -39,7 +34,7 @@ export type RawNote = RawNoteData & {
 
 type NoteState = {
   notes: RawNote[]
-  tags: Tag[]
+  tags: TagMap
 }
 
 export enum NoteActionType {
@@ -47,17 +42,18 @@ export enum NoteActionType {
   CREATE_TAG = 'CREATE_TAG',
   SET_TAGS = 'SET_TAGS',
   SET_NOTES = 'SET_NOTES',
+  SET_NOTES_WITH_TAGS = 'SET_NOTES_WITH_TAGS',
 }
 
 export type NoteActionPayload = {
   [NoteActionType.CREATE_NOTE]: {
-    note: NoteData
+    note: RawNoteData
   }
   [NoteActionType.CREATE_TAG]: {
     tag: Tag
   }
   [NoteActionType.SET_TAGS]: {
-    tags: Tag[]
+    tags: TagMap
   }
   [NoteActionType.SET_NOTES]: {
     notes: RawNote[]
@@ -69,7 +65,7 @@ type NoteAction =
 
 const initialState: NoteState = {
   notes: [],
-  tags: [],
+  tags: {},
 }
 
 const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
@@ -78,8 +74,6 @@ const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
       const { note } = action.payload
       const newRowNote = {
         ...note,
-        tagIds: note.tags.map((tag) => tag.id),
-        tags: undefined,
         id: uuidv4(),
       }
       return {
@@ -90,7 +84,7 @@ const noteReducer = (state: NoteState, action: NoteAction): NoteState => {
       const { tag } = action.payload
       return {
         ...state,
-        tags: [...state.tags, tag],
+        tags: { ...state.tags, [tag.id]: tag.label },
       }
     case NoteActionType.SET_TAGS:
       const { tags } = action.payload
@@ -127,11 +121,11 @@ const NoteProvider = ({ children }: { children: ReactNode }) => {
     LOCAL_STORAGE_NOTES_KEY,
     [],
   )
-  const [tags, setTags] = useLocalStorage<Tag[]>(LOCAL_STORAGE_TAGS_KEY, [])
+  const [tags, setTags] = useLocalStorage<TagMap>(LOCAL_STORAGE_TAGS_KEY, {})
 
   // TODO: find a better way to connect state with localStorage
   useEffect(() => {
-    if (state.tags.length) {
+    if (Object.keys(state.tags).length) {
       setTags(state.tags)
     } else {
       dispatch({

@@ -24,7 +24,7 @@ function NoteForm() {
         note: {
           title: titleRef.current!.value,
           markdown: markdownRef.current!.value,
-          tags: selectedTags,
+          tagIds: selectedTags.map((tag) => tag.id),
         },
       },
     })
@@ -58,9 +58,9 @@ function NoteForm() {
             <Form.Group controlId='title'>
               <Form.Label>Tags</Form.Label>
               <CreatableReactSelect
-                options={tags.map((tag) => ({
-                  label: tag.label,
-                  value: tag.id,
+                options={Object.entries(tags).map(([id, value]) => ({
+                  label: value,
+                  value: id,
                 }))}
                 onCreateOption={(label) => {
                   createTag(label)
